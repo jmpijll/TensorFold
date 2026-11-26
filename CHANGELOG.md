@@ -4,6 +4,8 @@ Each release's page on GitHub has its notes and measurements. See [the 1.0.0 rel
 
 ## Unreleased
 
+- CUDA: an opt-in NVFP4 tile for Qwen3.8-27B's MLP projections on sm_120/121 covers 128 columns per block, behind `TF_QMMF_EXACT_TILE=1` and off by default; every output bit is unchanged (#NNNN).
+
 - Internal: the Qwen3.8-27B shared-prefix attention test expects the 2,048-row chain it checks, and the host checks compile the attention tests; no runtime change (#5129).
 
 - Tests: the GLM CUDA keep-sequences check keeps the resume prompt state once, on rank 0, and followers take the fence-held id (#5122). Thanks to @BadAd84.
