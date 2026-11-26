@@ -4,7 +4,11 @@ Each release's page on GitHub has its notes and measurements. See [the 1.0.0 rel
 
 ## Unreleased
 
-- CUDA: an opt-in NVFP4 tile for Qwen3.8-27B's MLP projections on sm_120/121 covers 128 columns per block, behind `TF_QMMF_EXACT_TILE=1` and off by default; every output bit is unchanged (#NNNN).
+- Qwen3.8-27B on Metal: `TF_Q27_IDLE_RELEASE=N` (off by default) releases the target weights it prepared after N quiet seconds, marking them purgeable so macOS may reclaim the memory. The next request restores them first, reloading only the buffers the OS emptied and checking each against a SHA-256 snapshot. Replies are unchanged (#5040).
+
+- Hy4-flash (groundwork, not yet served): fused iHC and HC CUDA kernels with serial-exact arithmetic, contract gates covering every output, 13 planted controls and launch limits on the five release SMs (#5100). Thanks to @GrgaPalcic.
+
+- Ling-3.0-tiny on ARM CPUs: independent attention heads run in the persistent worker pool, each with its serial arithmetic and reduction order, so tokens and logits are unchanged; decode is about 10% faster at 1 and 4 threads (#5071). Thanks to @ThinkOffApp.
 
 - Internal: the Qwen3.8-27B shared-prefix attention test expects the 2,048-row chain it checks, and the host checks compile the attention tests; no runtime change (#5129).
 
@@ -132,6 +136,8 @@ Each release's page on GitHub has its notes and measurements. See [the 1.0.0 rel
 - Inkling 2 Mini on Metal with `--drafter`: prompt-cache snapshots keep the DSpark drafter's lane state as well as the target's, so a warm prompt-cache hit resumes drafting where it left off instead of resetting it (#4542). Thanks @gilby.
 
 - DeepSeek-V4.1 on HIP: the indexer's top-512 over fp32 score rows (`tf_dsv41_topk512`) runs under the kernel contract with Metal's selection rule; it is a kernel only, not yet used by serving (part of #2065) (#4914). Thanks @Shoestring-dev.
+
+- CUDA: `TF_QMMF_EXACT_TILE=1` (off by default) experiments with a 128-column NVFP4 tile for Qwen3.8-27B MLP projections on sm_120/121, preserving the original per-column operation order; device qualification remains pending (#5137).
 
 ## 1.3.5
 
