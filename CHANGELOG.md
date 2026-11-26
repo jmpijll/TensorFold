@@ -4,7 +4,7 @@ Each release's page on GitHub has its notes and measurements. See [the 1.0.0 rel
 
 ## Unreleased
 
-- GLM-5.3-Flash on CUDA at TP=2: `TF_GLM_MTP_CHAIN=1` (off by default) keeps native MTP draft IDs on the GPU between depths and downloads the picks once a round; every output bit is unchanged (#NNNN).
+- Qwen3.8-27B on Metal: `TF_Q27_IDLE_RELEASE=N` (off by default) releases the target weights it prepared after N quiet seconds, marking them purgeable so macOS may reclaim the memory. The next request restores them first, reloading only the buffers the OS emptied and checking each against a SHA-256 snapshot. Replies are unchanged (#5040).
 
 - Hy4-flash (groundwork, not yet served): fused iHC and HC CUDA kernels with serial-exact arithmetic, contract gates covering every output, 13 planted controls and launch limits on the five release SMs (#5100). Thanks to @GrgaPalcic.
 
@@ -136,6 +136,8 @@ Each release's page on GitHub has its notes and measurements. See [the 1.0.0 rel
 - Inkling 2 Mini on Metal with `--drafter`: prompt-cache snapshots keep the DSpark drafter's lane state as well as the target's, so a warm prompt-cache hit resumes drafting where it left off instead of resetting it (#4542). Thanks @gilby.
 
 - DeepSeek-V4.1 on HIP: the indexer's top-512 over fp32 score rows (`tf_dsv41_topk512`) runs under the kernel contract with Metal's selection rule; it is a kernel only, not yet used by serving (part of #2065) (#4914). Thanks @Shoestring-dev.
+
+- GLM-5.3-Flash on CUDA at TP=2: `TF_GLM_MTP_CHAIN=1` (off by default) keeps native MTP draft IDs on the GPU and downloads the picks once a round, retaining a gather-failure check at every depth; device qualification remains pending (#5149).
 
 ## 1.3.5
 
