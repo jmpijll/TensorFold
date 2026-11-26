@@ -194,7 +194,9 @@ fn qwenVisionModule(b: *std.Build, target: std.Build.ResolvedTarget, optimize: s
 
 /// The checkpoint subcommands' module: `models`, `info` and `pull` over the CUDA families.
 pub fn checkpointCli(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode, strip: ?bool, engines_mod: *std.Build.Module, core: *std.Build.Module) *std.Build.Module {
-    return b.createModule(.{ .root_source_file = b.path("zig/src/cli/cli.zig"), .target = target, .optimize = optimize, .link_libc = true, .strip = strip, .imports = &.{ .{ .name = "native_engines", .module = engines_mod }, exlr8_build.cliImport(b, target, optimize, core), .{ .name = "core", .module = core } } });
+    const cli = b.createModule(.{ .root_source_file = b.path("zig/src/cli/cli.zig"), .target = target, .optimize = optimize, .link_libc = true, .strip = strip, .imports = &.{ .{ .name = "native_engines", .module = engines_mod }, exlr8_build.cliImport(b, target, optimize, core), .{ .name = "core", .module = core } } });
+    cli.addImport("glm_tfq3_check", b.createModule(.{ .root_source_file = b.path("zig/src/families/glm/tfq3_check.zig"), .target = target, .optimize = optimize }));
+    return cli;
 }
 
 /// `zig build native`: tensorfold-native with the CUDA engines into zig-out/native/bin, as the Metal build makes it.
@@ -476,6 +478,8 @@ pub fn hostTests(b: *std.Build, draft_ids: *std.Build.Module, build_options: *st
     const memory_cli = checkpointCli(b, host, .debug, false, native_modules.engines, mods.core);
     memory_cli.root_source_file = b.path("zig/src/cli/tests.zig");
     b.step("test-cli-memory-host", "Actual checkpoint info memory tests without device or shader producers").dependOn(&b.addRunArtifact(b.addTest(.{ .root_module = memory_cli, .filters = &.{ "info prints family", "issue 934:", "plan" } })).step);
+    const tfq3_run = b.addRunArtifact(b.addTest(.{ .root_module = memory_cli, .filters = &.{ "tfq3", "KR135" } }));
+    b.step("test-tfq3-host", "TFQ3 CLI parsing, native encoding, safety and shard inspection on the host").dependOn(&tfq3_run.step);
     b.step("test-info-config", "Info shares the checkpoint config reader and diagnostics").dependOn(&b.addRunArtifact(b.addTest(.{ .root_module = memory_cli, .filters = &.{"issue 934:"} })).step);
     const cli_run = b.addRunArtifact(b.addTest(.{ .root_module = cli }));
     b.step("test-cli-host", "Checkpoint CLI parsing and CUDA start dispatch without devices").dependOn(&cli_run.step);
