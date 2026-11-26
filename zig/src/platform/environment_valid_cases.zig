@@ -279,4 +279,6 @@ pub const valid = [_]Case{
     .{ .name = "TF_CUDA_TEST_MLP128", .raw = "1", .n = 1 },
     .{ .name = "TF_NVFP4_DECODE_WARPS", .raw = "1", .n = 0 },
     .{ .name = "TF_NVFP4_DECODE_WARPS", .raw = "4", .n = 1 },
+    .{ .name = "TF_GLM_COPY_SELECT", .raw = "0", .n = 0 },
+    .{ .name = "TF_GLM_COPY_SELECT", .raw = "1", .n = 1 },
 };
